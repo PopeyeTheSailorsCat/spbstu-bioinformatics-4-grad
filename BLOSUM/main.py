@@ -1,8 +1,10 @@
 from collections import defaultdict
+from itertools import combinations
+from math import log
 
 # depends on variant
-input_seq_1 = "SKVKVDEV"
-input_seq_2 = "GKVNVAEC"
+input_seq_1 = "GKVNVDEV"
+input_seq_2 = "GKVKVDEV"
 d = 2
 
 PATH_FILE = "blosum_50.txt"  # if you have blosum-62 - dont change
@@ -73,7 +75,7 @@ def run_blosum_and_answer():
 
 
 def calc_S_rand(seq_1, seq_2):
-    blosum = BLOSUM(PATH_FILE, show = False)
+    blosum = BLOSUM(PATH_FILE, show=False)
     f_counter = defaultdict(int)
     s_counter = defaultdict(int)
     for elem in seq_1:
@@ -81,10 +83,11 @@ def calc_S_rand(seq_1, seq_2):
     for elem in seq_2:
         s_counter[elem] += 1
     res_sum = 0
-    for i in range(0, len(seq_1)):
-        for j in range(0, len(seq_2)):
-            res_sum += blosum.matrix[blosum.words_to_int[seq_1[i]]][blosum.words_to_int[seq_2[j]]] * f_counter[seq_1[i]] \
-                       * s_counter[seq_2[j]]
+    # for i in range(0, len(seq_1)):
+    #     for j in range(0, len(seq_2)):
+    for i, count_i in  f_counter.items():
+        for j, count_j in s_counter.items():
+            res_sum += blosum.matrix[blosum.words_to_int[i]][blosum.words_to_int[j]] * count_i * count_j
     return res_sum / len(seq_1)
     # add N(g) if you have this, because i dont have
 
@@ -111,3 +114,16 @@ if __name__ == '__main__':
     print("2,3", calc_S_rand(seq_2, seq_3))
     print("2,4", calc_S_rand(seq_2, seq_4))
     print("3,4", calc_S_rand(seq_3, seq_4))
+
+    S = {1: {1: 16, 2: 13, 3: 10, 4: 10}, 2: {2: 16, 3: 13, 4: 10}, 3: {3: 16, 4: 4}, 4: {4: 16}}
+    S_rand = {1: {2: calc_S_rand(seq_1, seq_2), 3: calc_S_rand(seq_1, seq_3), 4: calc_S_rand(seq_1, seq_4)},
+              2: {3: calc_S_rand(seq_2, seq_3), 4: calc_S_rand(seq_2, seq_4)}, 3: {calc_S_rand(seq_3, seq_4)}}
+    for x, y in combinations([1, 2, 3, 4], 2):
+        print(f"D {x, y}")
+        up = (S[x][y] - S_rand[x][y])
+        down = ((S[x][x] + S[y][y]) / 2) - S_rand[x][y]
+        print(up)
+        print(down)
+        cal = - log(up/down)
+        print(cal)
+    print("HEHE")
