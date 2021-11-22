@@ -117,7 +117,7 @@ if __name__ == '__main__':
 
     S = {1: {1: 16, 2: 13, 3: 10, 4: 10}, 2: {2: 16, 3: 13, 4: 10}, 3: {3: 16, 4: 4}, 4: {4: 16}}
     S_rand = {1: {2: calc_S_rand(seq_1, seq_2), 3: calc_S_rand(seq_1, seq_3), 4: calc_S_rand(seq_1, seq_4)},
-              2: {3: calc_S_rand(seq_2, seq_3), 4: calc_S_rand(seq_2, seq_4)}, 3: {calc_S_rand(seq_3, seq_4)}}
+              2: {3: calc_S_rand(seq_2, seq_3), 4: calc_S_rand(seq_2, seq_4)}, 3:{4: calc_S_rand(seq_3, seq_4)}}
     for x, y in combinations([1, 2, 3, 4], 2):
         print(f"D {x, y}")
         up = (S[x][y] - S_rand[x][y])
