@@ -51,15 +51,47 @@ class log_Cell:
     def __repr__(self):
         return f"Cell : (M:{self.m}-from:{self.m_dir}, I:{self.i}-from:{self.i_dir}, D:{self.d}-from:{self.d_dir})"
 
-    # def sum_calc_x(self, cell):
-    #     self.x = Q * sum([cell.m * PI["M"]["X"], cell.x * PI["X"]["X"]])
-    #
-    # def sum_calc_y(self, cell):
-    #     self.y = Q * sum([cell.y * PI["Y"]["Y"], cell.m * PI["M"]["Y"]])
-    #
-    # def sum_calc_m(self, cell, i, j):
-    #     P_i_j = P[first_line[j]][second_line[i]]
-    #     self.m = P_i_j * sum([cell.y * PI["Y"]["M"], cell.m * PI["M"]["M"], cell.x * PI["X"]["M"]])
+    def sum_calc_i(self, prev_cell, cond, letter):
+        pref = math.log(let_to_cond["I" + str(cond)][letter] / Q[letter])
+        under_log_sum = 0
+        if prev_cell.m != '-inf':
+            under_log_sum += cond_to_cond["M" + str(cond)]["I" + str(cond)] * math.exp(prev_cell.m)
+        if prev_cell.i != '-inf':
+            under_log_sum += cond_to_cond["I" + str(cond)]["I" + str(cond)] * math.exp(prev_cell.i)
+
+        if under_log_sum == 0:
+            self.i = '-inf'
+        else:
+            self.i = pref + math.log(under_log_sum)
+
+    def sum_calc_d(self, prev_cell, cond, letter):
+        under_log_sum = 0
+        if prev_cell.m != '-inf':
+            under_log_sum += cond_to_cond["M" + str(cond - 1)]["D" + str(cond)] * math.exp(prev_cell.m)
+        if prev_cell.i != '-inf':
+            under_log_sum += cond_to_cond["I" + str(cond - 1)]["D" + str(cond)] * math.exp(prev_cell.i)
+
+        if prev_cell.d != '-inf' and cond > 1:
+            under_log_sum += cond_to_cond["D" + str(cond - 1)]["D" + str(cond)] * math.exp(prev_cell.d)
+        if under_log_sum == 0:
+            self.d = '-inf'
+        else:
+            self.d = math.log(under_log_sum)
+
+    def sum_calc_m(self, prev_cell, cond, letter):
+        pref = math.log(let_to_cond["M" + str(cond)][letter] / Q[letter])
+        under_log_sum = 0
+        if prev_cell.m != '-inf':
+            under_log_sum += cond_to_cond["M" + str(cond - 1)]["M" + str(cond)] * math.exp(prev_cell.m)
+        if prev_cell.i != '-inf':
+            under_log_sum += cond_to_cond["I" + str(cond - 1)]["M" + str(cond)] * math.exp(prev_cell.i)
+
+        if prev_cell.d != '-inf' and cond > 1:
+            under_log_sum += cond_to_cond["D" + str(cond - 1)]["M" + str(cond)] * math.exp(prev_cell.d)
+        if under_log_sum == 0:
+            self.m = '-inf'
+        else:
+            self.m = pref + math.log(under_log_sum)
 
     def max_calc_i(self, cond, letter, prev_cell):
         max_val, max_dir = -100000000, None
@@ -151,11 +183,11 @@ def run_viterbi(table, size_x, size_y):
 
 
 def run_forward(table):
-    for i in range(1, size_y):
+    for i in range(1, size_y+1):
         for j in range(1, size_x + 1):
-            table[i][j].sum_calc_x(table[i][j - 1])
-            table[i][j].sum_calc_y(table[i - 1][j])
-            table[i][j].sum_calc_m(table[i - 1][j - 1], i - 1, j - 1)
+            table[i][j].sum_calc_i(table[i][j - 1], i, first_line[j - 1])
+            table[i][j].sum_calc_d(table[i - 1][j], i, first_line[j - 1])
+            table[i][j].sum_calc_m(table[i - 1][j - 1], i, first_line[j - 1])
     return table
 
 
@@ -169,10 +201,7 @@ if __name__ == '__main__':
     res = run_viterbi(table, size_x, size_y)
     print("VITERBI TABLE RESULT")
     show_table(res)
-    # print("FORWARD TABLE RESULT")
-    # table = init_table(size_x, size_y)
-    # result = run_forward(table)
-    # show_table(result)
-    k = "-inf"
-    k = 1
-    print(k)
+    print("FORWARD TABLE RESULT")
+    table = init_table(size_x, size_y)
+    result = run_forward(table)
+    show_table(result)
