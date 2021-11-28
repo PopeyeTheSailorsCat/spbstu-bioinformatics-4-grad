@@ -163,13 +163,23 @@ def create_table(size_x, size_y):
     return [[log_Cell(max) for _ in range(size_x + 1)] for _ in range(size_y + 1)]
 
 
-def init_table(size_x, size_y):
+def init_table_max(size_x, size_y):
     table = create_table(size_x, size_y)
     table[0][0].m = 0
     for i in range(1, size_x + 1):
         table[0][i].max_calc_i(0, first_line[i - 1], table[0][i - 1])
     for i in range(1, size_y + 1):
         table[i][0].max_calc_d(i, " ", table[i - 1][0])
+    return table
+
+
+def init_table_sum(size_x, size_y):
+    table = create_table(size_x, size_y)
+    table[0][0].m = 0
+    for i in range(1, size_x + 1):
+        table[0][i].sum_calc_i(table[0][i - 1], 0, first_line[i - 1])
+    for i in range(1, size_y + 1):
+        table[i][0].sum_calc_d(table[i - 1][0], i, " ")
     return table
 
 
@@ -183,7 +193,7 @@ def run_viterbi(table, size_x, size_y):
 
 
 def run_forward(table):
-    for i in range(1, size_y+1):
+    for i in range(1, size_y + 1):
         for j in range(1, size_x + 1):
             table[i][j].sum_calc_i(table[i][j - 1], i, first_line[j - 1])
             table[i][j].sum_calc_d(table[i - 1][j], i, first_line[j - 1])
@@ -195,13 +205,13 @@ def run_forward(table):
 if __name__ == '__main__':
     size_x = len(first_line)
     size_y = cond_size
-    table = init_table(size_x, size_y)
+    table = init_table_max(size_x, size_y)
     print("INIT TABLE")
     show_table(table)
     res = run_viterbi(table, size_x, size_y)
     print("VITERBI TABLE RESULT")
     show_table(res)
     print("FORWARD TABLE RESULT")
-    table = init_table(size_x, size_y)
+    table = init_table_sum(size_x, size_y)
     result = run_forward(table)
     show_table(result)

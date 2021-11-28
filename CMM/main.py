@@ -76,13 +76,23 @@ def create_table(size_x, size_y):
     return [[Cell(max) for _ in range(size_x + 1)] for _ in range(size_y + 1)]
 
 
-def init_table(size_x, size_y):
+def init_table_max(size_x, size_y):
     table = create_table(size_x, size_y)
     table[0][0].m = 1
     for i in range(1, size_x + 1):
         table[0][i].max_calc_x(table[0][i - 1])
     for i in range(1, size_y + 1):
         table[i][0].max_calc_y(table[i - 1][0])
+    return table
+
+
+def init_table_sum(size_x, size_y):
+    table = create_table(size_x, size_y)
+    table[0][0].m = 1
+    for i in range(1, size_x + 1):
+        table[0][i].sum_calc_x(table[0][i - 1])
+    for i in range(1, size_y + 1):
+        table[i][0].sum_calc_y(table[i - 1][0])
     return table
 
 
@@ -109,14 +119,14 @@ if __name__ == '__main__':
     pass
     size_x = len(first_line)
     size_y = len(second_line)
-    table = init_table(size_x, size_y)
+    table = init_table_max(size_x, size_y)
     print("INIT TABLE")
     show_table(table)
     res = run_viterbi(table)
     print("VITERBI TABLE RESULT")
     show_table(res)
     print("FORWARD TABLE RESULT")
-    table = init_table(size_x, size_y)
+    table = init_table_sum(size_x, size_y)
     result = run_forward(table)
     show_table(result)
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
